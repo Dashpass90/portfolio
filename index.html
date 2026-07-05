@@ -300,11 +300,32 @@ section { padding: 52px var(--pad); }
 .works-head { padding: 0 var(--pad) 20px; display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
 .works-head .s-title { margin-bottom: 0; }
 
-.tab-grp { display: flex; gap: 5px; flex-shrink: 0; }
-.tab-btn {
-  background: none;
+.tab-grp {
+  position: relative;
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+  background: rgba(243,236,227,.04);
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
+  padding: 4px;
+}
+.tab-pill {
+  position: absolute;
+  top: 4px; left: 4px;
+  height: calc(100% - 8px);
+  border-radius: calc(var(--r-sm) - 2px);
+  background: var(--accent);
+  box-shadow: 0 4px 14px rgba(255,90,54,.35);
+  transition: transform .42s cubic-bezier(.65,0,.35,1), width .42s cubic-bezier(.65,0,.35,1);
+  z-index: 0;
+}
+.tab-btn {
+  position: relative;
+  z-index: 1;
+  background: none;
+  border: none;
+  border-radius: calc(var(--r-sm) - 2px);
   color: var(--muted);
   font-family: 'Space Grotesk', sans-serif;
   font-size: .7rem;
@@ -313,10 +334,108 @@ section { padding: 52px var(--pad); }
   text-transform: uppercase;
   padding: 10px 14px;
   cursor: pointer;
-  min-height: 44px;
-  transition: all .2s;
+  min-height: 40px;
+  transition: color .3s ease .05s;
 }
-.tab-btn.active, .tab-btn:active { background: var(--accent); color: #16110f; border-color: var(--accent); }
+.tab-btn.active { color: #16110f; }
+.tab-btn:active { transform: scale(.96); }
+
+/* Empty state before a tab is picked */
+.works-empty {
+  margin: 8px var(--pad) 4px;
+  padding: 34px 20px;
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: var(--r-lg);
+  animation: tabIn .5s cubic-bezier(.16,1,.3,1) both;
+}
+.works-empty .we-ico {
+  display: inline-block;
+  font-size: 1.1rem;
+  color: var(--accent2);
+  margin-bottom: 10px;
+  animation: weSpin 3s linear infinite;
+}
+.works-empty p { font-size: .82rem; color: var(--muted); font-weight: 300; }
+.works-empty p b { color: var(--text); font-weight: 500; }
+@keyframes weSpin { to { transform: rotate(360deg); } }
+
+/* Design sub-category tabs (All / Logo / Magazine) */
+.subtab-grp {
+  position: relative;
+  display: inline-flex;
+  gap: 3px;
+  margin: 0 var(--pad) 16px;
+  background: rgba(243,236,227,.04);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 3px;
+}
+.subtab-pill {
+  position: absolute;
+  top: 3px; left: 3px;
+  height: calc(100% - 6px);
+  border-radius: calc(var(--r-sm) - 2px);
+  background: var(--accent2);
+  transition: transform .38s cubic-bezier(.65,0,.35,1), width .38s cubic-bezier(.65,0,.35,1);
+  z-index: 0;
+}
+.subtab-btn {
+  position: relative;
+  z-index: 1;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .64rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  border-radius: calc(var(--r-sm) - 2px);
+  cursor: pointer;
+  transition: color .3s ease .05s;
+}
+.subtab-btn.active { color: #16110f; }
+.subtab-btn:active { transform: scale(.95); }
+
+.cat-panel { animation: tabIn .4s cubic-bezier(.16,1,.3,1) both; }
+.cat-panel.leaving { animation: tabOut .22s cubic-bezier(.4,0,1,1) both; }
+
+.add-placeholder {
+  grid-column: 1 / -1;
+  aspect-ratio: 16/9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px dashed var(--border);
+  border-radius: var(--r-md);
+  color: var(--muted);
+}
+.add-placeholder span {
+  font-size: 1.4rem;
+  color: var(--accent2);
+  line-height: 1;
+}
+.add-placeholder p { font-size: .72rem; font-weight: 300; }
+
+/* Panel crossfade + slide when switching tabs */
+.tab-panel {
+  animation: tabIn .45s cubic-bezier(.16,1,.3,1) both;
+}
+.tab-panel.leaving {
+  animation: tabOut .28s cubic-bezier(.4,0,1,1) both;
+}
+@keyframes tabIn {
+  from { opacity: 0; transform: translateY(14px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes tabOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-10px) scale(.98); }
+}
 
 /* Videos — Google Drive embeds, vertical shorts style */
 .vid-grid { display: flex; flex-direction: column; gap: 8px; padding: 0 var(--pad); }
@@ -583,14 +702,21 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
       <div class="s-label">Portfolio</div>
       <h2 class="s-title">Selected <em>Works</em></h2>
     </div>
-    <div class="tab-grp">
-      <button class="tab-btn active" onclick="showTab('videos',this)">Video</button>
+    <div class="tab-grp" id="tabGrp">
+      <span class="tab-pill" id="tabPill"></span>
+      <button class="tab-btn" onclick="showTab('videos',this)">Video</button>
       <button class="tab-btn" onclick="showTab('photos',this)">Design</button>
     </div>
   </div>
 
+  <!-- Shown until the user picks a category -->
+  <div id="worksEmpty" class="works-empty">
+    <span class="we-ico">✦</span>
+    <p>Pick <b>Video</b> or <b>Design</b> above to view the work</p>
+  </div>
+
   <!-- VIDEOS — Google Drive embeds -->
-  <div id="videos">
+  <div id="videos" class="tab-panel" style="display:none;">
     <!--
       HOW TO ADD A VIDEO:
       1. Upload it to Google Drive, right-click → Share → "Anyone with the link".
@@ -619,14 +745,30 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
       <div>
         <div class="vid-wrap"><iframe src="https://drive.google.com/file/d/1Gm6Z9cIJ8K4Hj0VzA2PsPvStZuPocBf7/preview" allowfullscreen loading="lazy"></iframe></div>
       </div>
+      <div>
+        <div class="vid-wrap"><iframe src="https://drive.google.com/file/d/1ZsJX6GWaZkKdbTh-6E7lYg_CzWcaYsSS/preview" allowfullscreen loading="lazy"></iframe></div>
+      </div>
+      <div>
+        <div class="vid-wrap"><iframe src="https://drive.google.com/file/d/1Z0gAF3d-6UjKclNw33C0PP2ntrT37zdW/preview" allowfullscreen loading="lazy"></iframe></div>
+      </div>
     </div>
   </div>
 
   <!-- DESIGN / PHOTOS -->
-  <div id="photos" style="display:none;">
-    <div class="photo-grid">
-      <div class="photo-item" onclick="openLb('https://i.pinimg.com/736x/89/fb/e6/89fbe63d578121922d19fbdcff04f251.jpg')"><img src="https://i.pinimg.com/736x/89/fb/e6/89fbe63d578121922d19fbdcff04f251.jpg" alt="Brand identity design"></div>
-      <div class="photo-item" onclick="openLb('https://i.pinimg.com/736x/26/2b/56/262b56357b3e141872a2ef656fd416b0.jpg')"><img src="https://i.pinimg.com/736x/26/2b/56/262b56357b3e141872a2ef656fd416b0.jpg" alt="Social media graphics"></div>
+  <div id="photos" class="tab-panel" style="display:none;">
+
+    <div class="subtab-grp" id="subtabGrp">
+      <span class="subtab-pill" id="subtabPill"></span>
+      <button class="subtab-btn active" onclick="showCat('all',this)">All</button>
+      <button class="subtab-btn" onclick="showCat('logo',this)">Logo</button>
+      <button class="subtab-btn" onclick="showCat('magazine',this)">Magazine</button>
+    </div>
+
+    <!-- ALL -->
+    <div class="cat-panel" data-cat="all">
+      <div class="photo-grid">
+        <div class="photo-item" onclick="openLb('https://i.pinimg.com/736x/89/fb/e6/89fbe63d578121922d19fbdcff04f251.jpg')"><img src="https://i.pinimg.com/736x/89/fb/e6/89fbe63d578121922d19fbdcff04f251.jpg" alt="Brand identity design"></div>
+        <div class="photo-item" onclick="openLb('https://i.pinimg.com/736x/26/2b/56/262b56357b3e141872a2ef656fd416b0.jpg')"><img src="https://i.pinimg.com/736x/26/2b/56/262b56357b3e141872a2ef656fd416b0.jpg" alt="Social media graphics"></div>
         <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1DxkMRRLeJYdspbW4C305hzw85-5lyigy')"><img src="https://lh3.googleusercontent.com/d/1DxkMRRLeJYdspbW4C305hzw85-5lyigy" alt="Poster"></div>
         <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1K1yLXO_bvqfnMHUauXLaXXCr50jYlMxx')"><img src="https://lh3.googleusercontent.com/d/1K1yLXO_bvqfnMHUauXLaXXCr50jYlMxx" alt="Poster"></div>
         <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1D0jNS2m73Y4H6YJMlaAP0-Q3aMqctzw0')"><img src="https://lh3.googleusercontent.com/d/1D0jNS2m73Y4H6YJMlaAP0-Q3aMqctzw0" alt="Social media graphics"></div>
@@ -640,9 +782,37 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
         <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1j5L_sJKyqDUElBi8NN3MMmZm729B-SJv')"><img src="https://lh3.googleusercontent.com/d/1j5L_sJKyqDUElBi8NN3MMmZm729B-SJv" alt="Social media graphics"></div>
         <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1oF8NwJ7wz3qjj_0aDOhjgR8dhcSHq_Y2')"><img src="https://lh3.googleusercontent.com/d/1oF8NwJ7wz3qjj_0aDOhjgR8dhcSHq_Y2" alt="Social media graphics"></div>
         <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/18sfQ5jVQxLkHw9rVwj-tW4gGURxYPgLp')"><img src="https://lh3.googleusercontent.com/d/18sfQ5jVQxLkHw9rVwj-tW4gGURxYPgLp" alt="Social media graphics"></div>
-       
+      </div>
     </div>
-    <p style="font-size:.72rem;color:var(--muted);text-align:center;margin-top:14px;">Replace these with Naod's real design work.</p>
+
+    <!--
+      LOGO CATEGORY
+      Add your logo designs the same way as the images above:
+      <div class="photo-item" onclick="openLb('IMG_URL')"><img src="IMG_URL" alt="Logo design"></div>
+    -->
+    <div class="cat-panel" data-cat="logo" style="display:none;">
+      <div class="photo-grid">
+        <div class="add-placeholder">
+          <span>+</span>
+          <p>Add your logo designs here</p>
+        </div>
+      </div>
+    </div>
+
+    <!--
+      MAGAZINE CATEGORY
+      Add your magazine designs the same way as the images above:
+      <div class="photo-item" onclick="openLb('IMG_URL')"><img src="IMG_URL" alt="Magazine design"></div>
+    -->
+    <div class="cat-panel" data-cat="magazine" style="display:none;">
+      <div class="photo-grid">
+        <div class="add-placeholder">
+          <span>+</span>
+          <p>Add your magazine designs here</p>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -722,12 +892,88 @@ function updateNav(){
 window.addEventListener('scroll', updateNav, {passive:true});
 updateNav();
 
+function movePill(btn, pillId, grpId){
+  const pill = document.getElementById(pillId);
+  const grp  = document.getElementById(grpId);
+  const gr = grp.getBoundingClientRect();
+  const br = btn.getBoundingClientRect();
+  pill.style.width     = br.width + 'px';
+  pill.style.transform = `translateX(${br.left - gr.left - (grpId==='tabGrp'?4:3)}px)`;
+}
+
 function showTab(tab, btn){
-  document.getElementById('photos').style.display = tab==='photos' ? 'block' : 'none';
-  document.getElementById('videos').style.display = tab==='videos' ? 'block' : 'none';
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
+  movePill(btn, 'tabPill', 'tabGrp');
+
+  const empty = document.getElementById('worksEmpty');
+  if (empty.style.display !== 'none') {
+    empty.style.transition = 'opacity .25s ease, transform .25s ease';
+    empty.style.opacity = '0';
+    empty.style.transform = 'translateY(-8px)';
+    setTimeout(()=>{ empty.style.display = 'none'; }, 260);
+  }
+
+  const showEl = document.getElementById(tab);
+  const hideId = tab === 'photos' ? 'videos' : 'photos';
+  const hideEl = document.getElementById(hideId);
+
+  if (hideEl.style.display === 'none') { revealPanel(showEl); return; }
+
+  hideEl.classList.add('leaving');
+  hideEl.addEventListener('animationend', function onEnd(){
+    hideEl.removeEventListener('animationend', onEnd);
+    hideEl.classList.remove('leaving');
+    hideEl.style.display = 'none';
+    revealPanel(showEl);
+  }, { once:true });
 }
+
+function revealPanel(el){
+  el.style.display = 'block';
+  el.classList.remove('tab-panel');
+  void el.offsetWidth; /* restart animation */
+  el.classList.add('tab-panel');
+  if (el.id === 'photos') {
+    const activeSub = document.querySelector('.subtab-btn.active');
+    if (activeSub) requestAnimationFrame(()=> movePill(activeSub, 'subtabPill', 'subtabGrp'));
+  }
+}
+
+function showCat(cat, btn){
+  document.querySelectorAll('.subtab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  movePill(btn, 'subtabPill', 'subtabGrp');
+
+  const showEl = document.querySelector(`.cat-panel[data-cat="${cat}"]`);
+  const panels = document.querySelectorAll('.cat-panel');
+  let hideEl = null;
+  panels.forEach(p => { if (p !== showEl && p.style.display !== 'none') hideEl = p; });
+
+  if (!hideEl) { revealCat(showEl); return; }
+
+  hideEl.classList.add('leaving');
+  hideEl.addEventListener('animationend', function onEnd(){
+    hideEl.removeEventListener('animationend', onEnd);
+    hideEl.classList.remove('leaving');
+    hideEl.style.display = 'none';
+    revealCat(showEl);
+  }, { once:true });
+}
+
+function revealCat(el){
+  el.style.display = 'block';
+  el.classList.remove('cat-panel');
+  void el.offsetWidth;
+  el.classList.add('cat-panel');
+}
+
+window.addEventListener('resize', () => {
+  const a = document.querySelector('.tab-btn.active');
+  if (a) movePill(a, 'tabPill', 'tabGrp');
+  const s = document.querySelector('.subtab-btn.active');
+  if (s && document.getElementById('photos').style.display !== 'none') movePill(s, 'subtabPill', 'subtabGrp');
+});
 
 function openLb(src){
   document.getElementById('lb-img').src = src;
