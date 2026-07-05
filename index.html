@@ -60,9 +60,21 @@ a  { text-decoration: none; color: inherit; }
   z-index: 1000;
   display: flex;
 }
-.bnav ul { list-style: none; display: flex; width: 100%; }
+.bnav ul { position: relative; list-style: none; display: flex; width: 100%; }
 .bnav ul li { flex: 1; }
+.bnav-pill {
+  position: absolute;
+  top: 6px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255,90,54,.28), rgba(255,90,54,.05) 70%);
+  transform: translateX(-100px);
+  transition: transform .45s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none;
+}
 .bnav ul li a {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -74,11 +86,33 @@ a  { text-decoration: none; color: inherit; }
   font-weight: 500;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  transition: color .2s;
+  transition: color .25s;
 }
-.bnav ul li a .ico { font-size: 1.2rem; line-height: 1; transition: transform .2s; }
-.bnav ul li a.active      { color: var(--accent); }
-.bnav ul li a.active .ico { transform: scale(1.18); }
+.bnav ul li a .ico {
+  display: flex;
+  line-height: 1;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.bnav ul li a .ico svg {
+  width: 21px; height: 21px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke .25s;
+}
+.bnav ul li a.active { color: var(--accent); }
+.bnav ul li a.active .ico { transform: translateY(-2px); }
+.bnav ul li a.active .ico svg { fill: rgba(255,90,54,.16); }
+.bnav ul li a.pop .ico { animation: icoPop .5s cubic-bezier(.34,1.56,.64,1); }
+@keyframes icoPop {
+  0%   { transform: translateY(0) scale(1) rotate(0deg); }
+  35%  { transform: translateY(-6px) scale(1.28) rotate(-8deg); }
+  60%  { transform: translateY(-1px) scale(.94) rotate(4deg); }
+  100% { transform: translateY(-2px) scale(1) rotate(0deg); }
+}
+.bnav ul li a:active .ico { transform: scale(.85); }
 
 /* ════════════════════════════════════════
    TOP BAR
@@ -277,7 +311,8 @@ section { padding: 52px var(--pad); }
   letter-spacing: .05em;
 }
 .skill-card:active { border-color: rgba(255,90,54,.35); }
-.s-ico { font-size: 1.3rem; margin-bottom: 8px; display: block; }
+.s-ico { display: block; margin-bottom: 10px; }
+.s-ico svg { width: 34px; height: 34px; border-radius: 7px; display: block; }
 .skill-card h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; margin-bottom: 3px; }
 .skill-card p { font-size: .74rem; color: var(--muted); line-height: 1.55; }
 
@@ -363,7 +398,7 @@ section { padding: 52px var(--pad); }
 /* Design sub-category tabs (All / Logo / Magazine) */
 .subtab-grp {
   position: relative;
-  display: inline-flex;
+  display: flex;
   gap: 3px;
   margin: 0 var(--pad) 16px;
   background: rgba(243,236,227,.04);
@@ -383,6 +418,7 @@ section { padding: 52px var(--pad); }
 .subtab-btn {
   position: relative;
   z-index: 1;
+  flex: 1;
   background: none;
   border: none;
   color: var(--muted);
@@ -391,9 +427,10 @@ section { padding: 52px var(--pad); }
   font-weight: 500;
   letter-spacing: .04em;
   text-transform: uppercase;
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: calc(var(--r-sm) - 2px);
   cursor: pointer;
+  text-align: center;
   transition: color .3s ease .05s;
 }
 .subtab-btn.active { color: #16110f; }
@@ -446,9 +483,13 @@ section { padding: 52px var(--pad); }
 /* Photos — design/graphics gallery */
 .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 0 var(--pad); }
 .photo-item { position: relative; overflow: hidden; aspect-ratio: 3/4; background: var(--surf2); cursor: pointer; border-radius: var(--r-md); }
-.photo-item:nth-child(5n+1) { grid-column: span 2; aspect-ratio: 16/9; }
+.photo-item:nth-child(5n+1):not(.logo-item) { grid-column: span 2; aspect-ratio: 16/9; }
 .photo-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
 .photo-item:active img { transform: scale(1.04); }
+
+/* Logo marks look better contained on a flat swatch than cropped */
+.photo-item.logo-item { aspect-ratio: 1/1; background: var(--surf2); }
+.photo-item.logo-item img { object-fit: contain; padding: 18px; }
 
 /* ════════════════════════════════════════
    CONTACT
@@ -621,11 +662,20 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
 </header>
 
 <nav class="bnav">
-  <ul>
-    <li><a href="#home" class="active"><span class="ico">🏠</span>Home</a></li>
-    <li><a href="#about"><span class="ico">🎨</span>About</a></li>
-    <li><a href="#works"><span class="ico">🎞️</span>Works</a></li>
-    <li><a href="#contact"><span class="ico">✉️</span>Contact</a></li>
+  <ul id="bnavList">
+    <span class="bnav-pill" id="bnavPill"></span>
+    <li><a href="#home" class="active">
+      <span class="ico"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1v-9"/></svg></span>Home
+    </a></li>
+    <li><a href="#about">
+      <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.7-.6 1.7-1.4 0-.4-.15-.75-.4-1.05-.25-.3-.4-.65-.4-1.05 0-.8.6-1.4 1.4-1.4H16a4.5 4.5 0 0 0 4.5-4.5C20.5 6.6 16.7 3 12 3Z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7.5" r="1"/><circle cx="15" cy="7.5" r="1"/><circle cx="17" cy="11" r="1"/></svg></span>About
+    </a></li>
+    <li><a href="#works">
+      <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M8 5v4M16 5v4"/></svg></span>Works
+    </a></li>
+    <li><a href="#contact">
+      <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 6.5 8 6 8-6"/></svg></span>Contact
+    </a></li>
   </ul>
 </nav>
 
@@ -681,10 +731,10 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
       <p>With several years in the industry, I've worked with clients from small businesses to large corporations, bringing their vision to life through captivating visuals and seamless editing.</p>
     </div>
     <div class="skill-grid">
-      <div class="skill-card" data-layer="01"><span class="s-ico">🎬</span><h3>Premiere Pro</h3><p>Cutting, transitions, sound design, final export.</p></div>
-      <div class="skill-card" data-layer="02"><span class="s-ico">🖌️</span><h3>Photoshop</h3><p>Photo editing, compositing, retouching.</p></div>
-      <div class="skill-card" data-layer="03"><span class="s-ico">✏️</span><h3>Illustrator</h3><p>Logos, icons, vector illustration.</p></div>
-      <div class="skill-card" data-layer="04"><span class="s-ico">📐</span><h3>InDesign</h3><p>Layout for print &amp; digital publications.</p></div>
+      <div class="skill-card" data-layer="01"><span class="s-ico"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="6" fill="#00005B"/><text x="16" y="21" font-family="Arial, sans-serif" font-weight="700" font-size="13" fill="#9999FF" text-anchor="middle">Pr</text></svg></span><h3>Premiere Pro</h3><p>Cutting, transitions, sound design, final export.</p></div>
+      <div class="skill-card" data-layer="02"><span class="s-ico"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="6" fill="#001E36"/><text x="16" y="21" font-family="Arial, sans-serif" font-weight="700" font-size="13" fill="#31A8FF" text-anchor="middle">Ps</text></svg></span><h3>Photoshop</h3><p>Photo editing, compositing, retouching.</p></div>
+      <div class="skill-card" data-layer="03"><span class="s-ico"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="6" fill="#330000"/><text x="16" y="21" font-family="Arial, sans-serif" font-weight="700" font-size="13" fill="#FF9A00" text-anchor="middle">Ai</text></svg></span><h3>Illustrator</h3><p>Logos, icons, vector illustration.</p></div>
+      <div class="skill-card" data-layer="04"><span class="s-ico"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="6" fill="#49021F"/><text x="16" y="21" font-family="Arial, sans-serif" font-weight="700" font-size="13" fill="#FF3366" text-anchor="middle">Id</text></svg></span><h3>InDesign</h3><p>Layout for print &amp; digital publications.</p></div>
     </div>
     <div class="svc-list">
       <div class="svc-item">Video Editing <span class="arr">→</span></div>
@@ -759,7 +809,7 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
 
     <div class="subtab-grp" id="subtabGrp">
       <span class="subtab-pill" id="subtabPill"></span>
-      <button class="subtab-btn active" onclick="showCat('all',this)">All</button>
+      <button class="subtab-btn active" onclick="showCat('all',this)">Graphics</button>
       <button class="subtab-btn" onclick="showCat('logo',this)">Logo</button>
       <button class="subtab-btn" onclick="showCat('magazine',this)">Magazine</button>
     </div>
@@ -792,11 +842,18 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
     -->
     <div class="cat-panel" data-cat="logo" style="display:none;">
       <div class="photo-grid">
-        <div class="add-placeholder">
-          <span>+</span>
-          <p>Add your logo designs here</p>
-        </div>
-         <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1OqVLnQNUOi48QfM3CSiySTyf6OMtUEkv')"><img src="https://lh3.googleusercontent.com/d/1OqVLnQNUOi48QfM3CSiySTyf6OMtUEkv" alt="Social media graphics"></div>
+        <div class="photo-item logo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1-1et_RSE4hjACFq26Y5gm2S3QzpnJw0L')"><img src="https://lh3.googleusercontent.com/d/1-1et_RSE4hjACFq26Y5gm2S3QzpnJw0L" alt="Logo design"></div>
+        <div class="photo-item logo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1642T22xV4u3MhYqJ_ThAeQHIPUlMu64A')"><img src="https://lh3.googleusercontent.com/d/1642T22xV4u3MhYqJ_ThAeQHIPUlMu64A" alt="Logo design"></div>
+        <div class="photo-item logo-item" onclick="openLb('https://lh3.googleusercontent.com/d/17PvEg479P7kYS-AtmehLOHLAHwfTkRRb')"><img src="https://lh3.googleusercontent.com/d/17PvEg479P7kYS-AtmehLOHLAHwfTkRRb" alt="Logo design"></div>
+        <div class="photo-item logo-item" onclick="openLb('https://lh3.googleusercontent.com/d/195FSxgvmVe17AC-BY7_qOJoHVNngIJnZ')"><img src="https://lh3.googleusercontent.com/d/195FSxgvmVe17AC-BY7_qOJoHVNngIJnZ" alt="Logo design"></div>
+        <div class="photo-item logo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1IvrCpL378xR9O710znVP2TajX7VkaHok')"><img src="https://lh3.googleusercontent.com/d/1IvrCpL378xR9O710znVP2TajX7VkaHok" alt="Logo design"></div>
+        <div class="photo-item logo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1OqVLnQNUOi48QfM3CSiySTyf6OMtUEkv')"><img src="https://lh3.googleusercontent.com/d/1OqVLnQNUOi48QfM3CSiySTyf6OMtUEkv" alt="Logo design"></div>
+        <div class="photo-item logo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1Sp6Vc9Aj9SB8ZLIepTQxmDYLws7vSNug')"><img src="https://lh3.googleusercontent.com/d/1Sp6Vc9Aj9SB8ZLIepTQxmDYLws7vSNug" alt="Logo design"></div>
+        <div class="photo-item logo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1_O10zykr4djW-cpEz_jx9hYGJ1pxFlFK')"><img src="https://lh3.googleusercontent.com/d/1_O10zykr4djW-cpEz_jx9hYGJ1pxFlFK" alt="Logo design"></div>
+        <div class="photo-item logo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1jvypEmp6YceToDaBr77_oI2AYoh9-Vzr')"><img src="https://lh3.googleusercontent.com/d/1jvypEmp6YceToDaBr77_oI2AYoh9-Vzr" alt="Logo design"></div>
+        <div class="photo-item logo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1nyxRo2Dx5q7z8xoXurnD93fAOM39i0kw')"><img src="https://lh3.googleusercontent.com/d/1nyxRo2Dx5q7z8xoXurnD93fAOM39i0kw" alt="Logo design"></div>
+        <div class="photo-item logo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1u7gBRP7FG4S9t3IyLPvy1DtNMoIMIr1E')"><img src="https://lh3.googleusercontent.com/d/1u7gBRP7FG4S9t3IyLPvy1DtNMoIMIr1E" alt="Logo design"></div>
+        <div class="photo-item logo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1xz2EJIgnNBDeymTKUX6pGvPzBLPlhm81')"><img src="https://lh3.googleusercontent.com/d/1xz2EJIgnNBDeymTKUX6pGvPzBLPlhm81" alt="Logo design"></div>
       </div>
     </div>
 
@@ -807,10 +864,17 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
     -->
     <div class="cat-panel" data-cat="magazine" style="display:none;">
       <div class="photo-grid">
-        <div class="add-placeholder">
-          <span>+</span>
-          <p>Add your magazine designs here</p>
-        </div>
+        <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/11T4k1MuTIbaBOBWBNg9XwGdTqnkvTf5L')"><img src="https://lh3.googleusercontent.com/d/11T4k1MuTIbaBOBWBNg9XwGdTqnkvTf5L" alt="Magazine design"></div>
+        <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/139K20Gc_64lTEOOSOkaqx9lXEGK-WIl_')"><img src="https://lh3.googleusercontent.com/d/139K20Gc_64lTEOOSOkaqx9lXEGK-WIl_" alt="Magazine design"></div>
+        <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/19iqWFkcYCfq_cgiBN1ornjrWmrAPpgg7')"><img src="https://lh3.googleusercontent.com/d/19iqWFkcYCfq_cgiBN1ornjrWmrAPpgg7" alt="Magazine design"></div>
+        <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1Ms8jKoyKyZtmL96BoSje6mR0ltC2SQUz')"><img src="https://lh3.googleusercontent.com/d/1Ms8jKoyKyZtmL96BoSje6mR0ltC2SQUz" alt="Magazine design"></div>
+        <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1NcQejzbDtPgnsqqK4HAF2vyFOdNauW-_')"><img src="https://lh3.googleusercontent.com/d/1NcQejzbDtPgnsqqK4HAF2vyFOdNauW-_" alt="Magazine design"></div>
+        <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1QeU0KZ0Bh3jPP4oE1Z54xiad2t8IWPyU')"><img src="https://lh3.googleusercontent.com/d/1QeU0KZ0Bh3jPP4oE1Z54xiad2t8IWPyU" alt="Magazine design"></div>
+        <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1S4VykXKfjNRYwuKJmOPgVEoUJQ_aB7tb')"><img src="https://lh3.googleusercontent.com/d/1S4VykXKfjNRYwuKJmOPgVEoUJQ_aB7tb" alt="Magazine design"></div>
+        <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1UzEXc0xuv74f19zeOGinUBgAgmm6xnSY')"><img src="https://lh3.googleusercontent.com/d/1UzEXc0xuv74f19zeOGinUBgAgmm6xnSY" alt="Magazine design"></div>
+        <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1V8DTkAVj4gF5VfwH4RQQrBiWCt0sPU3E')"><img src="https://lh3.googleusercontent.com/d/1V8DTkAVj4gF5VfwH4RQQrBiWCt0sPU3E" alt="Magazine design"></div>
+        <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1ZcUJLhaoFSFhzqwc7luGEFYSV_GKCvgC')"><img src="https://lh3.googleusercontent.com/d/1ZcUJLhaoFSFhzqwc7luGEFYSV_GKCvgC" alt="Magazine design"></div>
+        <div class="photo-item" onclick="openLb('https://lh3.googleusercontent.com/d/1cGITJIMxu3TQZciUmluR2T9I73pRZr1C')"><img src="https://lh3.googleusercontent.com/d/1cGITJIMxu3TQZciUmluR2T9I73pRZr1C" alt="Magazine design"></div>
       </div>
     </div>
 
@@ -885,13 +949,43 @@ document.querySelectorAll('a,button').forEach(el=>{
 
 const secs = document.querySelectorAll('section[id]');
 const allNav = document.querySelectorAll('.bnav a, .dnav a');
+const bnavLinks = document.querySelectorAll('.bnav ul li a');
+let lastActiveHref = null;
+
+function moveBnavPill(link){
+  const pill = document.getElementById('bnavPill');
+  const list = document.getElementById('bnavList');
+  if (!pill || !list || !link) return;
+  const lr = list.getBoundingClientRect();
+  const br = link.getBoundingClientRect();
+  const cx = br.left - lr.left + br.width/2 - 20; /* 20 = half pill width */
+  pill.style.transform = `translateX(${cx}px)`;
+}
+
 function updateNav(){
   let cur2 = '';
   secs.forEach(s => { if(window.scrollY >= s.offsetTop-180) cur2 = s.id; });
-  allNav.forEach(a => a.classList.toggle('active', a.getAttribute('href')==='#'+cur2));
+  const href = '#'+cur2;
+  allNav.forEach(a => a.classList.toggle('active', a.getAttribute('href')===href));
+
+  if (href !== lastActiveHref) {
+    lastActiveHref = href;
+    const activeBnav = document.querySelector(`.bnav ul li a[href="${href}"]`);
+    if (activeBnav) {
+      moveBnavPill(activeBnav);
+      bnavLinks.forEach(a => a.classList.remove('pop'));
+      void activeBnav.offsetWidth;
+      activeBnav.classList.add('pop');
+    }
+  }
 }
 window.addEventListener('scroll', updateNav, {passive:true});
+window.addEventListener('resize', () => {
+  const active = document.querySelector('.bnav ul li a.active');
+  if (active) moveBnavPill(active);
+});
 updateNav();
+requestAnimationFrame(() => { const a = document.querySelector('.bnav ul li a.active'); if (a) moveBnavPill(a); });
 
 function movePill(btn, pillId, grpId){
   const pill = document.getElementById(pillId);
