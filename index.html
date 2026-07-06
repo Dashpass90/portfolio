@@ -685,6 +685,154 @@ section { padding: 52px var(--pad); }
   50%     { transform: scale(1.25) translate(-4%, 4%); opacity: 1; }
 }
 
+.contact-form { position: relative; margin-top: 26px; display: flex; flex-direction: column; gap: 18px; }
+.cf-honeypot { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
+.cf-row { display: flex; flex-direction: column; gap: 18px; }
+@media (min-width: 560px) { .cf-row { flex-direction: row; } .cf-row .cf-field { flex: 1; } }
+
+.cf-field { position: relative; }
+.cf-field input,
+.cf-field select,
+.cf-field textarea {
+  width: 100%;
+  background: rgba(var(--text-rgb),.04);
+  border: none;
+  border-bottom: 1.5px solid var(--border);
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  padding: 16px 12px 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .92rem;
+  color: var(--text);
+  outline: none;
+  transition: background-color .3s ease, border-color .3s ease;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.cf-field textarea { resize: vertical; min-height: 96px; }
+.cf-field select { cursor: pointer; }
+.cf-field select:invalid { color: var(--muted); }
+
+.cf-field label {
+  position: absolute;
+  left: 12px; top: 16px;
+  font-size: .92rem;
+  color: var(--muted);
+  pointer-events: none;
+  transform-origin: left top;
+  transition: transform .25s cubic-bezier(.4,0,.2,1), color .25s ease, top .25s ease;
+}
+.cf-field label.cf-label-static {
+  top: -9px; left: 4px;
+  font-size: .68rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.cf-field input:focus + label,
+.cf-field input:not(:placeholder-shown) + label,
+.cf-field textarea:focus + label,
+.cf-field textarea:not(:placeholder-shown) + label {
+  top: -9px;
+  transform: scale(.78);
+  color: var(--accent);
+}
+.cf-field input:focus,
+.cf-field select:focus,
+.cf-field textarea:focus { background: rgba(var(--accent-rgb),.06); }
+
+.cf-underline {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width .35s cubic-bezier(.4,0,.2,1);
+}
+.cf-field input:focus ~ .cf-underline,
+.cf-field select:focus ~ .cf-underline,
+.cf-field textarea:focus ~ .cf-underline { width: 100%; }
+
+.cf-field:has(select)::after {
+  content: '';
+  position: absolute;
+  right: 14px; top: 20px;
+  width: 8px; height: 8px;
+  border-right: 1.6px solid var(--muted);
+  border-bottom: 1.6px solid var(--muted);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.cf-submit {
+  position: relative;
+  align-self: flex-start;
+  gap: 9px;
+  min-width: 180px;
+}
+.cf-spinner {
+  display: none;
+  width: 15px; height: 15px;
+  border: 2px solid rgba(255,255,255,.35);
+  border-top-color: var(--btn-text);
+  border-radius: 50%;
+}
+.cf-submit.loading .cf-btn-txt { opacity: .55; }
+.cf-submit.loading .cf-spinner { display: inline-block; animation: cfSpin .7s linear infinite; }
+@keyframes cfSpin { to { transform: rotate(360deg); } }
+.cf-submit:disabled { cursor: default; opacity: .85; }
+
+.cf-status {
+  font-size: .8rem;
+  font-weight: 500;
+  padding: 0;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height .35s ease, opacity .3s ease, padding .35s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--r-sm);
+}
+.cf-status.show { max-height: 60px; opacity: 1; padding: 12px 14px; }
+.cf-status.ok  { background: rgba(52,199,89,.12); color: #34c759; }
+.cf-status.err { background: rgba(var(--accent-rgb),.12); color: var(--accent); animation: cfShake .4s ease; }
+.cf-status .cf-check {
+  width: 16px; height: 16px; flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid #34c759;
+  display: flex; align-items: center; justify-content: center;
+}
+.cf-status .cf-check svg { width: 9px; height: 9px; animation: cfCheckIn .35s ease .1s both; }
+@keyframes cfCheckIn { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: scale(1); } }
+@keyframes cfShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+
+.cf-or {
+  text-align: center;
+  font-size: .7rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 30px 0 14px;
+  position: relative;
+}
+.cf-or::before, .cf-or::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 28%;
+  height: 1px;
+  background: var(--border);
+}
+.cf-or::before { left: 0; }
+.cf-or::after  { right: 0; }
+
 .email-btn {
   position: relative;
   display: flex;
@@ -1343,6 +1491,54 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
     <p style="font-size:.88rem;color:var(--muted);line-height:1.8;font-weight:300;">
       Have a vision? Whether it's a brand video, social content, or graphic design — reach out and let's make something great.
     </p>
+    <form id="contactForm" class="contact-form" novalidate>
+      <input type="hidden" name="access_key" value="ad191796-7dd5-4bcc-8f71-493635ca3312"/>
+      <input type="checkbox" name="botcheck" class="cf-honeypot" tabindex="-1" autocomplete="off"/>
+      <input type="hidden" name="subject" value="New project inquiry from portfolio site"/>
+
+      <div class="cf-row">
+        <div class="cf-field">
+          <input type="text" name="name" id="cfName" placeholder=" " required/>
+          <label for="cfName">Your name</label>
+          <span class="cf-underline"></span>
+        </div>
+        <div class="cf-field">
+          <input type="email" name="email" id="cfEmail" placeholder=" " required/>
+          <label for="cfEmail">Your email</label>
+          <span class="cf-underline"></span>
+        </div>
+      </div>
+
+      <div class="cf-field">
+        <select name="project_type" id="cfType" required>
+          <option value="" disabled selected hidden></option>
+          <option>Video Editing</option>
+          <option>Graphic Design</option>
+          <option>Social Media Content</option>
+          <option>Branding / Logo</option>
+          <option>Other</option>
+        </select>
+        <label for="cfType" class="cf-label-static">Project type</label>
+        <span class="cf-underline"></span>
+      </div>
+
+      <div class="cf-field">
+        <textarea name="message" id="cfMessage" rows="4" placeholder=" " required></textarea>
+        <label for="cfMessage">Tell me about your project</label>
+        <span class="cf-underline"></span>
+      </div>
+
+      <button type="submit" class="btn btn-p cf-submit">
+        <span class="bp-shine"></span>
+        <span class="cf-btn-txt">Send Message</span>
+        <span class="cf-spinner"></span>
+      </button>
+
+      <div class="cf-status" id="cfStatus"></div>
+    </form>
+
+    <p class="cf-or">or reach out directly</p>
+
     <a href="mailto:naod.ermiyas@example.com" class="email-btn">
       <span class="eb-shine"></span>
       <span class="eb-icon">
@@ -1676,6 +1872,55 @@ const ro = new IntersectionObserver(entries=>{
   entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
 },{threshold:.08, rootMargin:'0px 0px -40px 0px'});
 document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+/* ── CONTACT FORM ── */
+(function(){
+  const form = document.getElementById('contactForm');
+  const btn = form.querySelector('.cf-submit');
+  const status = document.getElementById('cfStatus');
+
+  function showStatus(kind, msg){
+    status.className = 'cf-status show ' + kind;
+    status.innerHTML = kind === 'ok'
+      ? `<span class="cf-check"><svg viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg></span><span>${msg}</span>`
+      : `<span>${msg}</span>`;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (form.access_key.value === 'YOUR_WEB3FORMS_ACCESS_KEY') {
+      showStatus('err', 'Form isn\'t connected yet — add a Web3Forms access key.');
+      return;
+    }
+    if (form.botcheck.checked) return; // spam bot caught
+
+    btn.classList.add('loading');
+    btn.disabled = true;
+    status.classList.remove('show');
+
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(Object.fromEntries(new FormData(form)))
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        showStatus('ok', 'Message sent — I\'ll get back to you soon!');
+        form.reset();
+      } else {
+        showStatus('err', 'Something went wrong. Please try again or email me directly.');
+      }
+    } catch (err) {
+      showStatus('err', 'Network error. Please try again or email me directly.');
+    } finally {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+    }
+  });
+})();
 </script>
 </body>
 </html>
