@@ -217,7 +217,9 @@ a  { text-decoration: none; color: inherit; }
 .hero-bg img {
   width: 100%; height: 100%;
   object-fit: cover;
-  object-position: top center;
+  object-position: center;
+  filter: brightness(.55) blur(3px);
+  transform: scale(1.04);
 }
 /* aperture-style radial glow signature, red/black accent lighting */
 .hero-bg::before {
@@ -1182,10 +1184,14 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
   .topbar .dnav li a:hover, .topbar .dnav li a.active { color: var(--accent); }
   .topbar .dnav li a:hover::after, .topbar .dnav li a.active::after { width: 100%; }
 
-  #home { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; flex-direction: unset; justify-content: unset; }
-  .hero-bg { position: relative; grid-column: 2; grid-row: 1; }
-  .hero-bg::after { background: linear-gradient(90deg, rgba(var(--bg-rgb),1) 0%, rgba(var(--bg-rgb),.3) 60%, transparent 100%); }
-  .hero-body { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; justify-content: flex-end; padding: 110px var(--pad) 8%; }
+  #home { display: flex; min-height: 100vh; flex-direction: column; justify-content: flex-end; }
+  .hero-bg { position: absolute; inset: 0; }
+  .hero-bg::after {
+    background:
+      linear-gradient(0deg,  rgba(var(--bg-rgb),1) 0%,  rgba(var(--bg-rgb),.65) 38%, rgba(var(--bg-rgb),.2) 62%, transparent 85%),
+      linear-gradient(90deg, rgba(var(--bg-rgb),.55) 0%, transparent 45%);
+  }
+  .hero-body { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; padding: 110px var(--pad) 8%; max-width: 720px; }
   .hero-btns { flex-direction: row; }
   .btn { flex: 0 0 auto; }
 
@@ -1258,7 +1264,7 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
 <!-- ══ HERO ══ -->
 <section id="home">
   <div class="hero-bg">
-    <img src="https://lh3.googleusercontent.com/d/1J8jSa5T7n7r7VJIUh6v93UEuGTNOzNKB" alt="Naod Ermiyas" fetchpriority="high">
+    <img src="https://cdn.pixabay.com/photo/2021/01/09/17/45/computer-5903052_1280.jpg" alt="" fetchpriority="high">
   </div>
   <div class="hero-body">
     <p class="hero-tag">Video Editor &amp; Graphics Designer · Addis Ababa</p>
@@ -1492,7 +1498,7 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
       Have a vision? Whether it's a brand video, social content, or graphic design — reach out and let's make something great.
     </p>
     <form id="contactForm" class="contact-form" novalidate>
-      <input type="hidden" name="access_key" value="ad191796-7dd5-4bcc-8f71-493635ca3312"/>
+      <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY"/>
       <input type="checkbox" name="botcheck" class="cf-honeypot" tabindex="-1" autocomplete="off"/>
       <input type="hidden" name="subject" value="New project inquiry from portfolio site"/>
 
