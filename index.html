@@ -661,6 +661,42 @@ section { padding: 52px var(--pad); }
   to   { opacity: 0; transform: translateY(-10px) scale(.98); }
 }
 
+.tabpage-title {
+  padding: 0 var(--pad) 22px;
+  text-align: center;
+  animation: tptIn .5s cubic-bezier(.16,1,.3,1) .08s both;
+}
+.tabpage-title h3 {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(1.4rem, 5vw, 1.9rem);
+  color: var(--text);
+  margin-bottom: 6px;
+  position: relative;
+  display: inline-block;
+}
+.tabpage-title h3::after {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 2px;
+  margin: 8px auto 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 2px;
+  animation: tptLine .6s cubic-bezier(.4,0,.2,1) .3s both;
+}
+@keyframes tptLine { from { width: 0; opacity: 0; } to { width: 36px; opacity: 1; } }
+.tabpage-title p {
+  font-size: .78rem;
+  color: var(--muted);
+  letter-spacing: .01em;
+}
+@keyframes tptIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* Videos — Google Drive embeds, vertical shorts style */
 .vid-grid { display: flex; flex-direction: column; gap: 8px; padding: 0 var(--pad); }
 .vid-wrap { width: 100%; aspect-ratio: 9/16; background: var(--surf2); overflow: hidden; border-radius: var(--r-md); }
@@ -675,8 +711,20 @@ section { padding: 52px var(--pad); }
 .photo-item:active img { transform: scale(1.04); }
 
 /* Logo marks look better contained on a flat swatch than cropped */
-.photo-item.logo-item { aspect-ratio: 1/1; background: var(--surf2); }
-.photo-item.logo-item img { object-fit: contain; padding: 18px; }
+.photo-item.logo-item {
+  aspect-ratio: 1/1;
+  background: #f4efec;
+  border: 1px solid rgba(0,0,0,.06);
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease, border-color .3s ease;
+}
+.photo-item.logo-item img { object-fit: contain; padding: 20%; transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
+.photo-item.logo-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(var(--accent-rgb),.22);
+  border-color: rgba(var(--accent-rgb),.35);
+}
+.photo-item.logo-item:hover img { transform: scale(1.08); }
+.photo-item.logo-item:active img { transform: scale(1.02); }
 
 /* ════════════════════════════════════════
    CONTACT
@@ -1012,6 +1060,13 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
 }
 .lightbox.open { display: flex; opacity: 1; }
 .lb-frame { position: relative; max-width: 100%; max-height: 88vh; display: flex; }
+.lb-frame.lb-logo-bg {
+  background: #f4efec;
+  border-radius: var(--r-lg);
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(var(--bg-rgb),.6);
+}
+.lb-frame.lb-logo-bg img { box-shadow: none; }
 .lightbox img {
   max-width: 100%; max-height: 88vh;
   object-fit: contain;
@@ -1374,17 +1429,25 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
         <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 1 1 0-18c4 0 7.5 2.7 7.5 6.3 0 2.4-1.8 3.9-3.8 3.9h-1.6c-1 0-1.6.7-1.6 1.5 0 .4.15.7.35.95.2.25.35.55.35.95 0 .75-.6 1.35-1.35 1.35h-.1"/><circle cx="7.3" cy="10.2" r="1"/><circle cx="9.8" cy="7" r="1"/><circle cx="14.3" cy="7" r="1"/></svg></span>
         Design
       </button>
+      <button class="tab-btn" onclick="showTab('photography',this)">
+        <span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1-2h7l1 2h2A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="13" r="3.4"/></svg></span>
+        Photo
+      </button>
     </div>
   </div>
 
   <!-- Shown until the user picks a category -->
   <div id="worksEmpty" class="works-empty">
     <span class="we-ico">✦</span>
-    <p>Pick <b>Video</b> or <b>Design</b> above to view the work</p>
+    <p>Pick <b>Video</b>, <b>Design</b>, or <b>Photo</b> above to view the work</p>
   </div>
 
   <!-- VIDEOS — Google Drive embeds -->
   <div id="videos" class="tab-panel" style="display:none;">
+    <div class="tabpage-title">
+      <h3>Video Editing</h3>
+      <p>Motion edits, reels, and story-driven cuts.</p>
+    </div>
     <!--
       HOW TO ADD A VIDEO:
       1. Upload it to Google Drive, right-click → Share → "Anyone with the link".
@@ -1424,6 +1487,10 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
 
   <!-- DESIGN / PHOTOS -->
   <div id="photos" class="tab-panel" style="display:none;">
+    <div class="tabpage-title">
+      <h3>Graphic Design</h3>
+      <p>Brand identity, social content, logos, and print design.</p>
+    </div>
 
     <div class="subtab-grp" id="subtabGrp">
       <span class="subtab-pill" id="subtabPill"></span>
@@ -1450,6 +1517,9 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
         <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1j5L_sJKyqDUElBi8NN3MMmZm729B-SJv" alt="Social media graphics" loading="lazy"></div>
         <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1oF8NwJ7wz3qjj_0aDOhjgR8dhcSHq_Y2" alt="Social media graphics" loading="lazy"></div>
         <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/18sfQ5jVQxLkHw9rVwj-tW4gGURxYPgLp" alt="Social media graphics" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/166UZyILrGMncsalCBQjBxcwdmRicF_T9" alt="Social media graphics" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1IuJRnZSUeLDfBmNf-_rRUaAxDIZzaJNW" alt="Social media graphics" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1PUQXB_r-TEta8EBvDd5Lw5GQ_zSXHcOc" alt="Social media graphics" loading="lazy"></div>
       </div>
     </div>
 
@@ -1472,6 +1542,8 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
         <div class="photo-item logo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1nyxRo2Dx5q7z8xoXurnD93fAOM39i0kw" alt="Logo design" loading="lazy"></div>
         <div class="photo-item logo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1u7gBRP7FG4S9t3IyLPvy1DtNMoIMIr1E" alt="Logo design" loading="lazy"></div>
         <div class="photo-item logo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1xz2EJIgnNBDeymTKUX6pGvPzBLPlhm81" alt="Logo design" loading="lazy"></div>
+        <div class="photo-item logo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1YSWbvjRZVtRfDGT0CpEOtnmUg0kjYU04" alt="Logo design" loading="lazy"></div>
+        <div class="photo-item logo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1loITLBJtszhrOErsl9M1eZ8jmyLze6qf" alt="Logo design" loading="lazy"></div>
       </div>
     </div>
 
@@ -1495,7 +1567,44 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
         <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1cGITJIMxu3TQZciUmluR2T9I73pRZr1C" alt="Magazine design" loading="lazy"></div>
       </div>
     </div>
+  </div>
 
+  <!-- PHOTOGRAPHY -->
+  <div id="photography" class="tab-panel" style="display:none;">
+    <div class="tabpage-title">
+      <h3>Photography</h3>
+      <p>Moments captured through the lens.</p>
+    </div>
+    <div class="photo-grid">
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1nXM048CHaozGKXT-LglaHjh0iK_RMl1U" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1KdfsNqBMPt-awxMwkWTmQxm3gxZ4gXvO" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1J0OoG8FKNDjEIHfvJOt-GmkIvx1ybC59" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/12TwQnhivvkXjsLm4LqtnbtIilhRrZ88Z" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1bi2caTbMHA7hePElaeaHL1nYkHegDxv3" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/15GCNwqLLoxE6mz6WGcZsPziCKahAatsB" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1_dPQ5upN65gT5222r15tuEZbNiffvlTY" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1X8UOjd_34cdDNGA0nZbZKeAjeUUieE38" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1LJThxppVJqu4gKr0uJhE1ii9NeKfCZXK" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1D_FskZPXj7g3oJNUajqnoKYSw2xhJJ4I" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1lGLg6IRfjoQ0ChXzvnH21mTCqRSpTfgP" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1Fie5_3E89ef5-6G7d6LLoTNK02s8gJrb" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1_cA1Q2DyBAppBB5KsI4Qx4XtlIyNzR0s" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1Mnu_8GO8j3VSbtLsy01KqsD45HxBc0hX" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1eXdRs2zXBTd1vhI_BWS-lsI4046Vci-Y" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/18jeMjsvz5r3l3FInj92zJdwSu9qr2HmA" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1aZeSnCF4fgEHzQqIiFcJoZbyQH-PFLyu" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1FVM6O8Ao0f4o8MBcgZgiKLHvdAU4WSuV" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1bSWol9QmDPbfNb5G_YmxuTAqsUkHz_wp" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/15f11GZ4EvliKZI54emuAKDWSBw2eR9X-" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1_gKbE2pWmXBwyUKxzYsbLIOCEsVotdK6" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/17ljBAtff7n9aznplbDU2kqQeT9ysIHjJ" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1Om6tMn2jP9Mzo7DricA2ByhlhLkxYEqF" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1PwbpURA0h9f_Qw39DwdAVMgmFlGqBmOc" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1GSnhyNHynidgx_-vAQCAPnTK2uppy77t" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1Jr35pahxwKMdP0COcnKiCvO-gvX4B8w_" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1LBqCMoJippdty5JG68uj5lcEBqJS448e" alt="Photography" loading="lazy"></div>
+        <div class="photo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1g4ToZ-MUYfSTp74IaRICMSHRKIKo8bEj" alt="Photography" loading="lazy"></div>
+    </div>
   </div>
 </section>
 
@@ -1508,7 +1617,7 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
       Have a vision? Whether it's a brand video, social content, or graphic design — reach out and let's make something great.
     </p>
     <form id="contactForm" class="contact-form" novalidate>
-      <input type="hidden" name="access_key" value="ad191796-7dd5-4bcc-8f71-493635ca3312"/>
+      <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY"/>
       <input type="checkbox" name="botcheck" class="cf-honeypot" tabindex="-1" autocomplete="off"/>
       <input type="hidden" name="subject" value="New project inquiry from portfolio site"/>
 
@@ -1764,10 +1873,11 @@ function showTab(tab, btn){
   }
 
   const showEl = document.getElementById(tab);
-  const hideId = tab === 'photos' ? 'videos' : 'photos';
-  const hideEl = document.getElementById(hideId);
+  const allPanels = document.querySelectorAll('.tab-panel');
+  let hideEl = null;
+  allPanels.forEach(p => { if (p !== showEl && p.style.display !== 'none') hideEl = p; });
 
-  if (hideEl.style.display === 'none') { revealPanel(showEl); return; }
+  if (!hideEl) { revealPanel(showEl); return; }
 
   hideEl.classList.add('leaving');
   hideEl.addEventListener('animationend', function onEnd(){
@@ -1832,6 +1942,8 @@ function openLb(el){
   lbGallery = Array.from(grid.querySelectorAll('.photo-item img')).map(img => img.src);
   const clickedSrc = el.querySelector('img').src;
   lbIndex = Math.max(0, lbGallery.indexOf(clickedSrc));
+
+  document.querySelector('.lb-frame').classList.toggle('lb-logo-bg', el.classList.contains('logo-item'));
 
   renderLb(null);
   document.getElementById('lb').classList.add('open');
