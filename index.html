@@ -711,20 +711,23 @@ section { padding: 52px var(--pad); }
 .photo-item:active img { transform: scale(1.04); }
 
 /* Logo marks look better contained on a flat swatch than cropped */
-.photo-item.logo-item {
-  aspect-ratio: 1/1;
+.photo-item.logo-item { aspect-ratio: 1/1; background: var(--surf2); }
+.photo-item.logo-item img { object-fit: contain; padding: 18px; }
+
+/* Special treatment for transparent-background logos that need a light backing card */
+.photo-item.logo-light {
   background: #f4efec;
   border: 1px solid rgba(0,0,0,.06);
   transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease, border-color .3s ease;
 }
-.photo-item.logo-item img { object-fit: contain; padding: 20%; transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
-.photo-item.logo-item:hover {
+.photo-item.logo-light img { padding: 20%; transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
+.photo-item.logo-light:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 28px rgba(var(--accent-rgb),.22);
   border-color: rgba(var(--accent-rgb),.35);
 }
-.photo-item.logo-item:hover img { transform: scale(1.08); }
-.photo-item.logo-item:active img { transform: scale(1.02); }
+.photo-item.logo-light:hover img { transform: scale(1.08); }
+.photo-item.logo-light:active img { transform: scale(1.02); }
 
 /* ════════════════════════════════════════
    CONTACT
@@ -1542,8 +1545,8 @@ footer p { font-size: .68rem; color: var(--muted); letter-spacing: .03em; }
         <div class="photo-item logo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1nyxRo2Dx5q7z8xoXurnD93fAOM39i0kw" alt="Logo design" loading="lazy"></div>
         <div class="photo-item logo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1u7gBRP7FG4S9t3IyLPvy1DtNMoIMIr1E" alt="Logo design" loading="lazy"></div>
         <div class="photo-item logo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1xz2EJIgnNBDeymTKUX6pGvPzBLPlhm81" alt="Logo design" loading="lazy"></div>
-        <div class="photo-item logo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1YSWbvjRZVtRfDGT0CpEOtnmUg0kjYU04" alt="Logo design" loading="lazy"></div>
-        <div class="photo-item logo-item" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1loITLBJtszhrOErsl9M1eZ8jmyLze6qf" alt="Logo design" loading="lazy"></div>
+        <div class="photo-item logo-item logo-light" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1YSWbvjRZVtRfDGT0CpEOtnmUg0kjYU04" alt="Logo design" loading="lazy"></div>
+        <div class="photo-item logo-item logo-light" onclick="openLb(this)"><img src="https://lh3.googleusercontent.com/d/1loITLBJtszhrOErsl9M1eZ8jmyLze6qf" alt="Logo design" loading="lazy"></div>
       </div>
     </div>
 
@@ -1939,11 +1942,12 @@ let lbIndex = 0;
 
 function openLb(el){
   const grid = el.closest('.photo-grid') || document;
-  lbGallery = Array.from(grid.querySelectorAll('.photo-item img')).map(img => img.src);
+  lbGallery = Array.from(grid.querySelectorAll('.photo-item')).map(item => ({
+    src: item.querySelector('img').src,
+    logoLight: item.classList.contains('logo-light')
+  }));
   const clickedSrc = el.querySelector('img').src;
-  lbIndex = Math.max(0, lbGallery.indexOf(clickedSrc));
-
-  document.querySelector('.lb-frame').classList.toggle('lb-logo-bg', el.classList.contains('logo-item'));
+  lbIndex = Math.max(0, lbGallery.findIndex(g => g.src === clickedSrc));
 
   renderLb(null);
   document.getElementById('lb').classList.add('open');
@@ -1955,7 +1959,9 @@ function renderLb(dir){
   img.classList.remove('lb-anim-left', 'lb-anim-right');
   if (dir === 1) { void img.offsetWidth; img.classList.add('lb-anim-right'); }
   if (dir === -1) { void img.offsetWidth; img.classList.add('lb-anim-left'); }
-  img.src = lbGallery[lbIndex];
+  const item = lbGallery[lbIndex];
+  img.src = item.src;
+  document.querySelector('.lb-frame').classList.toggle('lb-logo-bg', !!item.logoLight);
 
   const counter = document.getElementById('lbCounter');
   const multi = lbGallery.length > 1;
